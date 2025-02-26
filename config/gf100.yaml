@@ -1,0 +1,32 @@
+%YAML:1.0
+
+#--------------------------------------------------------------------------------------------
+# Camera Parameters. Adjust them!
+#--------------------------------------------------------------------------------------------
+Camera1.input: /usb_cam/image_raw
+# save as photo
+Camera1.outputx: ../config/weightx.png
+Camera1.outputy: ../config/weighty.png
+
+# 相机内参
+Camera1.fx: 783.3559
+Camera1.fy: 781.9535
+Camera1.cx: 699.8696
+Camera1.cy: 348.6342
+
+# distortion parameters
+Camera1.k1: 0.1385
+Camera1.k2: -0.1802
+Camera1.p1: 0.0012
+Camera1.p2: -0.0004
+Camera1.k3: 0.0178
+
+# Camera resolution
+Camera1.width: 1280
+Camera1.height: 720
+
+# Camera frames per second 
+Camera1.fps: 60
+
+# Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
+Camera1.RGB: 1

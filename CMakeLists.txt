@@ -32,22 +32,23 @@ find_package(OpenCV 4)
 find_package(Eigen3 REQUIRED)
 
 include_directories(
-${PROJECT_SOURCE_DIR}
-${PROJECT_SOURCE_DIR}/include
-/usr/local/include
-/usr/local/include/opencv4
+   ${PROJECT_SOURCE_DIR}
+   ${PROJECT_SOURCE_DIR}/include
+   /usr/local/include
+   /usr/local/include/opencv4
 )
 
 set(LIBS 
-${OpenCV_LIBS} 
-${EIGEN3_LIBS}
+   ${OpenCV_LIBS} 
+   ${EIGEN3_LIBS}
 )
 
 # Node for helloworld
 rosbuild_add_executable(helloworld
-src/helloworld.cpp
+   src/helloworld.cpp
+   src/parameters.cpp
 )
 
 target_link_libraries(helloworld
-${LIBS}
+   ${LIBS}
 )
