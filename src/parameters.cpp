@@ -5,6 +5,9 @@ std::string camInput;
 std::string camOutputX;
 std::string camOutputY;
 
+double setHeight;
+double setAngle;
+
 double fx;
 double fy;
 double cx;
@@ -45,6 +48,9 @@ void readParameters(const std::string &config_file)
     fs["Camera1.p1"] >> p1;
     fs["Camera1.p2"] >> p2;
     fs["Camera1.k3"] >> k3;
+
+    fs["Camera1.setHeight"] >> setHeight;
+    fs["Camera1.setAngle"] >> setAngle;
     
     // 读取分辨率、帧率和色彩顺序
     fs["Camera1.width"] >> width;

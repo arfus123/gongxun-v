@@ -52,3 +52,13 @@ rosbuild_add_executable(helloworld
 target_link_libraries(helloworld
    ${LIBS}
 )
+
+# # Node for helloworld
+rosbuild_add_executable(camera
+   src/camera.cpp
+   src/parameters.cpp
+)
+
+target_link_libraries(camera
+   ${LIBS}
+)

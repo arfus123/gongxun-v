@@ -7,6 +7,9 @@ extern std::string camInput;
 extern std::string camOutputX;
 extern std::string camOutputY;
 
+extern double setHeight;
+extern double setAngle;
+
 extern double fx;
 extern double fy;
 extern double cx;

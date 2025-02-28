@@ -5,7 +5,7 @@
 int main()
 {
     // 先加载并打印配置文件中的参数
-    readParameters("/home/firefly/gongxun-v/config/gf100.yaml");
+    readParameters("/home/firefly/gongxun-v/config/fv100.yaml");
 
     std::cout << "\n----- 打印加载的参数 -----" << std::endl;
     std::cout << "Input: " << camInput << std::endl;
