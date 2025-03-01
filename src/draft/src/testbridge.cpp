@@ -24,14 +24,19 @@ std::vector<Ball> balls;
 std::vector<Object> objs;
 
 extern const char* class_names[];
-const std::string engine_file_path = "/home/firefly/gongxun-v/infer/models/gx1201.trt";
+const std::string engine_file_path = "/home/firefly/Downloads/model_zoo-master/gongxun/1201/gx1201.trt";
 auto yolov8 = new YOLOv8(engine_file_path);
 
+const string X_DIST_IMG_FILENAME = "/home/firefly/gongxun-v/src/draft/config/120.png";
+const string Y_DIST_IMG_FILENAME = "/home/firefly/gongxun-v/src/draft/config/relative_y.png";
+
+cv::Mat        x_distance_img, y_distance_img;
 cv::Size       im_size(640, 640);
 const int      num_labels  = 4;
 const int      topk        = 100;
-const float    score_thres = 0.25f;
+const float    score_thres = 0.30f;
 const float    iou_thres   = 0.65f;
+int            x_offset_cm = 0;
 
 class BallDetector
 {
@@ -65,6 +70,7 @@ public:
             std_msgs::String obj_info_msg;
             obj_info_msg.data = json_msg;
             obj_info_pub_.publish(obj_info_msg);
+            balls.clear();
 
             // 显示图像（可选）
             f = std::chrono::duration_cast <std::chrono::milliseconds> (Tend - Tbegin).count();
@@ -93,11 +99,17 @@ private:
     
     void GetObjPositions(std::vector<Ball>& balls, const std::vector<Object>& objs)
     {
+        if (x_distance_img.empty() || y_distance_img.empty()) {
+            cout << "距离图像未加载" << endl;
+            return;
+        }
         for (auto& obj : objs) {
             Ball ball;
             ball.color = class_names[obj.label];
-            ball.x = obj.rect.x + obj.rect.width / 2.0f;
-            ball.y = obj.rect.y + obj.rect.height / 2.0f;
+            int x_pixel = static_cast<int>(x_distance_img.at<uchar>(obj.rect.y, obj.rect.x));
+            int y_pixel = static_cast<int>(y_distance_img.at<uchar>(obj.rect.y+obj.rect.height/2.0, obj.rect.x));
+            ball.x = (x_pixel - x_offset_cm) / 100.0;
+            ball.y = y_pixel / 100.0;
             balls.push_back(ball);
         }
     }
@@ -105,7 +117,6 @@ private:
     // std::vector<Ball> detectBalls(const cv::Mat& image)
     // {
     //     std::vector<Ball> balls;
-
     //     // 示例：假设我们检测到四个固定位置和颜色的小球
     //     balls.push_back({"red", 1.1, 0.2});
     //     balls.push_back({"blue", 2.3, 1.4});
@@ -125,8 +136,11 @@ private:
         {
             nlohmann::json ball_info;
             ball_info["color"] = ball.color;
-            ball_info["x"] = ball.x;
-            ball_info["y"] = ball.y;
+            std::ostringstream oss_x, oss_y;
+            oss_x << std::fixed << std::setprecision(2) << ball.x;
+            oss_y << std::fixed << std::setprecision(2) << ball.y;
+            ball_info["x"] = oss_x.str();
+            ball_info["y"] = oss_x.str();
             json_data["balls"].push_back(ball_info);
         }
 
@@ -136,6 +150,22 @@ private:
 
 int main(int argc, char** argv)
 {
+    cout << "Reading distance images..." << endl;
+    x_distance_img = cv::imread(X_DIST_IMG_FILENAME, cv::IMREAD_GRAYSCALE);
+    y_distance_img = cv::imread(Y_DIST_IMG_FILENAME, cv::IMREAD_GRAYSCALE);
+    if (x_distance_img.empty() || y_distance_img.empty()) {
+        cout << "Read failed" << endl;
+        return -1;
+    }
+    try {
+        // 文件名格式为 "数字.png"
+        size_t pos = X_DIST_IMG_FILENAME.find('.');
+        string numStr = X_DIST_IMG_FILENAME.substr(0, pos);
+        x_offset_cm = stoi(numStr);
+    } catch (...) {
+        x_offset_cm = 0;
+    }
+
     cout << "Set CUDA...\n" << endl;
     cudaSetDevice(0);
     cout << "Loading TensorRT model " << engine_file_path << endl;
